@@ -101,19 +101,28 @@ public class portfolio_controller {
 	 	    resumeService.save(resume);
 
 	 	    // Step 3: Remove all physical copies from server folder
-	 	    Resource resource = new ClassPathResource("static/uploads/cv/");
-	 	    File folder = resource.getFile();
-	 	    if (folder.exists()) {
-	 	        File[] files = folder.listFiles();
-	 	        for (File f : files) {
-	 	            f.delete();
-	 	        }
-	 	    }
+	 	   Resource resource = new ClassPathResource("static/uploads/");
+	 	   File folder = null;
+	 	   try {
+	 	      folder = resource.getFile();
+	 	   } catch (FileNotFoundException ex) {
+	 		   Resource parentResource= new ClassPathResource("static/uploads/");
+	 	      File parentFolder = new File(parentResource.getURI());
+	 	      parentFolder.mkdirs();
+	 	      folder = new File(parentFolder, "cv");
+	 	      folder.mkdirs();
+	 	   }
+	 	   if (folder.exists()) {
+	 	      File[] files = folder.listFiles();
+	 	      for (File f : files) {
+	 	          f.delete();
+	 	      }
+	 	   }
+
 
 	 	    // Step 4: Save new physical copy in server folder
 	 	    Path path = Paths.get(resource.getURI());
 	 	    Files.copy(file.getInputStream(), path.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
-
 	 	    return "redirect:/";
 	 	}
 
@@ -126,7 +135,7 @@ public class portfolio_controller {
 
 	 	// Load the file from the classpath
 	 	    ClassLoader classLoader = getClass().getClassLoader();
-	 	    InputStream inputStream = classLoader.getResourceAsStream("static/uploads/cv/" + resume.getImage());
+	 	    InputStream inputStream = classLoader.getResourceAsStream("static/uploads/" + resume.getImage());
 
 	 	    // Create an InputStreamResource from the input stream
 	 	    InputStreamResource resource = new InputStreamResource(inputStream);
