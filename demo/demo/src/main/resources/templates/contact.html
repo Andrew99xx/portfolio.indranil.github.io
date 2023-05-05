@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>My Profiles</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<style>
+		.container {
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+		}
+
+		.profile-link {
+			margin: 20px;
+		}
+
+		.profile-link a {
+			display: block;
+			height: 100px;
+			width: 100px;
+			background-color: #eee;
+			border-radius: 50%;
+			text-align: center;
+			line-height: 100px;
+		}
+
+		#github-link a {
+			background-image: url(github-icon.png);
+			background-size: cover;
+		}
+
+		#linkedin-link a {
+			background-image: url(linkedin-icon.png);
+			background-size: cover;
+		}
+
+		#gmail-link a {
+			background-image: url(gmail-icon.png);
+			background-size: cover;
+		}
+
+		#whatsapp-link a {
+			background-image: url(whatsapp-icon.png);
+			background-size: cover;
+		}
+	</style>
+</head>
+<body>
+<div th:replace="navbar :: navbar"></div>
+	<div class="container">
+		<div class="profile-link" id="github-link">
+			<a href="https://github.com/Andrew99xx"><i class="fa fa-github" style="font-size:42px;color:#171515"></i></a>
+		</div>
+		<div class="profile-link" id="linkedin-link">
+			<a href="https://www.linkedin.com/in/indranil-chakraborty-91ba60217/"><i class="fa fa-linkedin-square" style="color:#0072b1; font-size:42px"></i></a>
+		</div>
+		<div class="profile-link" id="gmail-link">
+			<a href="mailto:indranilchakraborty4sc@gmail.com"><i class="fa fa-google" style="color:#DB4437;font-size:42px"></i></a>
+		</div>
+		<div class="profile-link" id="twitter-link">
+			<a href="https://twitter.com/indrani77970500"><i class="fa fa-twitter" style="font-size:42px; color:#00acee"></i></a>
+		</div>
+	</div>
+</body>
+</html>
