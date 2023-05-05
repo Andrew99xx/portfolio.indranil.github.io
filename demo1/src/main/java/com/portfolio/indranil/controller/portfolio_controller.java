@@ -76,31 +76,32 @@ public class portfolio_controller {
 			cert.setImage(fileName);
 			certService.saveCertificate(cert);
 			
+			 Resource resource = new ClassPathResource("static/uploads/cv/");
 			
-			Path path = Paths.get("src/main/resources/static/uploads/" + fileName);//----------very important
+			 Path path = Paths.get(resource.getURI());//----------very important
 	        
 	        System.out.println(path.toAbsolutePath());
 	        
-	        Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+	        Files.copy(file.getInputStream(), path.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 	        
 	        return "redirect:/";
 	 	}
 	 //--------------saves CV-------------------------------
 	 	@PostMapping("/cv/saveCv")
 	 	public @ResponseBody String createCertificate(final @RequestParam("image") MultipartFile file) throws IOException {
-	 		
-	 		 // deleting all sql entries before
+	 	    
+	 	    // deleting all sql entries before
 	 	    resumeService.deleteAll();
 	 	    
-	 		 // Step 2: Insert new value
+	 	    // Step 2: Insert new value
 	 	    resumeEntity resume = new resumeEntity();
-	 	    String fileName = StringUtils.cleanPath(file.getOriginalFilename());	 	    
+	 	    String fileName = StringUtils.cleanPath(file.getOriginalFilename());          
 	 	    resume.setImage(fileName);
 	 	    resume.setPick(1);
 	 	    resumeService.save(resume);
 
 	 	    // Step 3: Remove all physical copies from server folder
-	 	    Resource resource = new ClassPathResource("static/uploads/cv");
+	 	    Resource resource = new ClassPathResource("static/uploads/cv/");
 	 	    File folder = resource.getFile();
 	 	    if (folder.exists()) {
 	 	        File[] files = folder.listFiles();
@@ -110,28 +111,34 @@ public class portfolio_controller {
 	 	    }
 
 	 	    // Step 4: Save new physical copy in server folder
-	 	    Path path = Paths.get("src/main/resources/static/uploads/" + fileName);
-	 	    Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+	 	    Path path = Paths.get(resource.getURI());
+	 	    Files.copy(file.getInputStream(), path.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
 
 	 	    return "redirect:/";
 	 	}
+
 	 	
 	 	//--------------DOWNLOAD CV-------------
 	 	@GetMapping("/downloadPDF")
 	    public ResponseEntity<InputStreamResource> downloadPDF() throws IOException {
-	        // your code to read the file from the server's folder
-	 		resumeEntity resume=resumeService.returnBypick();
-	        File file = new File("src/main/resources/static/uploads/" + resume.getImage());
-	        InputStreamResource resource = new InputStreamResource(new FileInputStream(file));
+	 	// your code to read the file from the server's folder
+	 	    resumeEntity resume = resumeService.returnBypick();
 
-	        HttpHeaders headers = new HttpHeaders();
-	        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + file.getName());
+	 	// Load the file from the classpath
+	 	    ClassLoader classLoader = getClass().getClassLoader();
+	 	    InputStream inputStream = classLoader.getResourceAsStream("static/uploads/cv/" + resume.getImage());
 
-	        return ResponseEntity.ok()
-	                .headers(headers)
-	                .contentLength(file.length())
-	                .contentType(MediaType.parseMediaType("application/pdf"))
-	                .body(resource);
+	 	    // Create an InputStreamResource from the input stream
+	 	    InputStreamResource resource = new InputStreamResource(inputStream);
+
+	 	    HttpHeaders headers = new HttpHeaders();
+	 	    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + resume.getImage());
+
+	 	    return ResponseEntity.ok()
+	 	            .headers(headers)
+	 	            .contentLength(inputStream.available())
+	 	            .contentType(MediaType.parseMediaType("application/pdf"))
+	 	            .body(resource);
 	    }
 	 	
 	 	//--------------send email
