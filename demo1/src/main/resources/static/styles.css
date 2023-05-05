@@ -623,6 +623,23 @@ section {
   display: flex;
   align-self: flex-start;
 }
+.main-btn-input {
+  border: 2px solid #4CAF50;
+  border-radius: 50px;
+  background-color: transparent;
+  color: #ffffff;
+  padding: 10px 20px;
+  text-align: center;
+  font-family:"Poppins", sans-serif;
+  display: inline-block;
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+}
+
+input.main-btn-input:hover {
+  background-color: #3E8E41;
+}
 
 .main-btn {
   border-radius: 30px;
