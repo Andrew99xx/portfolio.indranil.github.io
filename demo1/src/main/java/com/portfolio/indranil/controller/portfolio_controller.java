@@ -26,11 +26,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.portfolio.indranil.Email.EmailSenderService;
 import com.portfolio.indranil.certificate.entity.Certificate;
-import com.portfolio.indranil.certificate.repo.CertificateRepository;
 import com.portfolio.indranil.certificate.service.CertificateService;
-import com.portfolio.indranil.resume.entity.resumeEntity;
 import com.portfolio.indranil.resume.service.ResumeService;
-
+import com.portfolio.indranil.resume.entity.*;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -103,15 +101,8 @@ public class portfolio_controller {
 	 	    // Step 3: Remove all physical copies from server folder
 	 	   Resource resource = new ClassPathResource("static/uploads/");
 	 	   File folder = null;
-	 	   try {
-	 	      folder = resource.getFile();
-	 	   } catch (FileNotFoundException ex) {
-	 		   Resource parentResource= new ClassPathResource("static/uploads/");
-	 	      File parentFolder = new File(parentResource.getURI());
-	 	      parentFolder.mkdirs();
-	 	      folder = new File(parentFolder, "cv");
-	 	      folder.mkdirs();
-	 	   }
+	 	   folder = resource.getFile();
+	 	  
 	 	   if (folder.exists()) {
 	 	      File[] files = folder.listFiles();
 	 	      for (File f : files) {
