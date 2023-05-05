@@ -136,13 +136,13 @@ public class portfolio_controller {
 	 	
 	 	//--------------send email
 	 	@PostMapping("/sendmail")
-	 	public @ResponseBody String sendEmail(@RequestParam("mailId") String mailid,
+	 	public String sendEmail(@RequestParam("mailId") String mailid,
 	 											@RequestParam("subject") String subject,
 	 											@RequestParam("text") String text) throws Exception  {
 			
-	 		emailService.sendEmail("indranilchakraborty4sc@gmail.com", mailid, subject , text);
+	 		emailService.sendEmail("hascalstech@gmail.com", mailid, subject , text);
 	 		
-	 		return "home";
+	 		return "redirect:/";
 	 		
 	 	}
 	 	
