@@ -1,5 +1,7 @@
 package com.portfolio.indranil;
 
+import java.security.PublicKey;
+
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
@@ -13,7 +15,10 @@ public class Application {
 	--These are optional
 	but thymeleaf mvn dependency is needed
 */
+	public String PORT=System.getenv("PORT");
 	public static void main(String[] args) {
+		
+		
 		SpringApplication.run(Application.class, args);
 		System.out.println("hi");
 	}
