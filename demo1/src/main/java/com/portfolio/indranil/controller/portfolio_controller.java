@@ -18,17 +18,22 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.portfolio.indranil.Email.EmailSenderService;
 import com.portfolio.indranil.certificate.entity.Certificate;
 import com.portfolio.indranil.certificate.service.CertificateService;
-import com.portfolio.indranil.resume.service.ResumeService;
 import com.portfolio.indranil.resume.entity.*;
+import com.portfolio.indranil.resume.repo.ResumeRepo;
+
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
@@ -42,7 +47,7 @@ public class portfolio_controller {
 	    private CertificateService certService;
 		
 		@Autowired
-		private ResumeService resumeService;
+		private ResumeRepo resumeRepo;
 		
 		@Autowired EmailSenderService emailService;
 		
@@ -85,61 +90,33 @@ public class portfolio_controller {
 	        return "redirect:/";
 	 	}
 	 //--------------saves CV-------------------------------
-	 	@PostMapping("/cv/saveCv")
-	 	public @ResponseBody String createCertificate(final @RequestParam("image") MultipartFile file) throws IOException {
-	 	    
-	 	    // deleting all sql entries before
-	 	    resumeService.deleteAll();
-	 	    
-	 	    // Step 2: Insert new value
-	 	    resumeEntity resume = new resumeEntity();
-	 	    String fileName = StringUtils.cleanPath(file.getOriginalFilename());          
-	 	    resume.setImage(fileName);
-	 	    resume.setPick(1);
-	 	    resumeService.save(resume);
+	 	@RestController
+	 	class ImageController {
 
-	 	    // Step 3: Remove all physical copies from server folder
-	 	   Resource resource = new ClassPathResource("static/uploads/");
-	 	   File folder = null;
-	 	   folder = resource.getFile();
-	 	  
-	 	   if (folder.exists()) {
-	 	      File[] files = folder.listFiles();
-	 	      for (File f : files) {
-	 	          f.delete();
-	 	      }
-	 	   }
+	 	    @Autowired
+	 	    ResumeRepo imageDbRepository;
 
+	 	    @PostMapping("/cv/saveCv")
+	 	    Long uploadImage(@RequestParam MultipartFile multipartImage) throws Exception {
+	 	        resumeEntity dbImage = new resumeEntity();
+	 	        dbImage.setName(multipartImage.getName());
+	 	        dbImage.setContent(multipartImage.getBytes());
 
-	 	    // Step 4: Save new physical copy in server folder
-	 	    Path path = Paths.get(resource.getURI());
-	 	    Files.copy(file.getInputStream(), path.resolve(fileName), StandardCopyOption.REPLACE_EXISTING);
-	 	    return "redirect:/";
+	 	        return imageDbRepository.save(dbImage)
+	 	            .getId();
+	 	    }
 	 	}
 
 	 	
 	 	//--------------DOWNLOAD CV-------------
-	 	@GetMapping("/downloadPDF")
-	    public ResponseEntity<InputStreamResource> downloadPDF() throws IOException {
-	 	// your code to read the file from the server's folder
-	 	    resumeEntity resume = resumeService.returnBypick();
+	 	@GetMapping(value = "/image/{imageId}", produces = MediaType.IMAGE_JPEG_VALUE)
+	 	Resource downloadImage(@PathVariable Long imageId) {
+	 	    byte[] image = resumeRepo.findById(imageId)
+	 	      .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND))
+	 	      .getContent();
 
-	 	// Load the file from the classpath
-	 	    ClassLoader classLoader = getClass().getClassLoader();
-	 	    InputStream inputStream = classLoader.getResourceAsStream("static/uploads/" + resume.getImage());
-
-	 	    // Create an InputStreamResource from the input stream
-	 	    InputStreamResource resource = new InputStreamResource(inputStream);
-
-	 	    HttpHeaders headers = new HttpHeaders();
-	 	    headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment;filename=" + resume.getImage());
-
-	 	    return ResponseEntity.ok()
-	 	            .headers(headers)
-	 	            .contentLength(inputStream.available())
-	 	            .contentType(MediaType.parseMediaType("application/pdf"))
-	 	            .body(resource);
-	    }
+	 	    return new ByteArrayResource(image);
+	 	}
 	 	
 	 	//--------------send email
 	 	@PostMapping("/sendmail")
