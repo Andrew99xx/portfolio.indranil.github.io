@@ -79,7 +79,7 @@ public class portfolio_controller {
 			cert.setImage(fileName);
 			certService.saveCertificate(cert);
 			
-			 Resource resource = new ClassPathResource("static/uploads/cv/");
+			 Resource resource = new ClassPathResource("static/uploads/");
 			
 			 Path path = Paths.get(resource.getURI());//----------very important
 	        
@@ -89,23 +89,23 @@ public class portfolio_controller {
 	        
 	        return "redirect:/";
 	 	}
-	 //--------------saves CV-------------------------------
-	 	@RestController
-	 	class ImageController {
+	 //--------------saves CV-------------------------------	 	
 
 	 	    @Autowired
 	 	    ResumeRepo imageDbRepository;
 
 	 	    @PostMapping("/cv/saveCv")
-	 	    Long uploadImage(@RequestParam MultipartFile multipartImage) throws Exception {
+	 	    public @ResponseBody String uploadImage(@RequestParam("cv") MultipartFile multipartCV) throws Exception {
 	 	        resumeEntity dbImage = new resumeEntity();
-	 	        dbImage.setName(multipartImage.getName());
-	 	        dbImage.setContent(multipartImage.getBytes());
+	 	        
+	 	        String filename = StringUtils.cleanPath(multipartCV.getOriginalFilename());
+	 	        
+	 	        dbImage.setName(filename);
+	 	        dbImage.setContent(multipartCV.getBytes());
 
-	 	        return imageDbRepository.save(dbImage)
-	 	            .getId();
+	 	       return "redirect:/";
 	 	    }
-	 	}
+
 
 	 	
 	 	//--------------DOWNLOAD CV-------------
